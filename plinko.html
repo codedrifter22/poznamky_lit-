@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plinko Casino</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0f0c29;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            max-width: 900px;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 30px;
+            font-size: 3em;
+            font-weight: 800;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+            letter-spacing: 2px;
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            color: #fff;
+            font-size: 2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .control-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .bet-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            padding: 10px 20px;
+        }
+
+        .bet-input-group label {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .bet-input-group input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            width: 120px;
+            text-align: center;
+        }
+
+        .bet-input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+        }
+
+        .quick-bets {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .quick-bet-btn {
+            background: rgba(102, 126, 234, 0.2);
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .quick-bet-btn:hover {
+            background: rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: inline-block;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        button {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(118, 75, 162, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(118, 75, 162, 0.6);
+        }
+
+        button:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #gameCanvas {
+            display: block;
+            border: 3px solid rgba(102, 126, 234, 0.5);
+            border-radius: 20px;
+            background: linear-gradient(180deg, rgba(15, 12, 41, 0.8) 0%, rgba(48, 43, 99, 0.8) 100%);
+            margin: 0 auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 50px rgba(102, 126, 234, 0.1);
+        }
+
+        .win-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 60px;
+            border-radius: 25px;
+            font-size: 2.5em;
+            font-weight: 800;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .win-message.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .history {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .history-title {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .history-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+        }
+
+        .history-item.win {
+            border-left: 4px solid #1dd1a1;
+        }
+
+        .history-item.loss {
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .history-bet {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .history-result {
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        .history-result.positive {
+            color: #1dd1a1;
+        }
+
+        .history-result.negative {
+            color: #ff6b6b;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <h1>🎰 PLINKO CASINO</h1>
+        
+        <div class="stats-panel">
+            <div class="stat-card">
+                <div class="stat-label">💰 Zostatok</div>
+                <div class="stat-value" id="balance">1000</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">🎯 Celkový zisk</div>
+                <div class="stat-value" id="totalProfit">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">🎲 Hry</div>
+                <div class="stat-value" id="gamesPlayed">0</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-row">
+                <div class="bet-input-group">
+                    <label>💵 Stávka:</label>
+                    <input type="number" id="betAmount" value="10" min="1" step="1">
+                </div>
+                <div class="file-input-wrapper">
+                    <label class="file-input-label" for="imageUpload">
+                        📷 Vlastný obrázok
+                    </label>
+                    <input type="file" id="imageUpload" accept="image/*">
+                </div>
+            </div>
+            <div class="control-row quick-bets">
+                <button class="quick-bet-btn" data-bet="5">5 €</button>
+                <button class="quick-bet-btn" data-bet="10">10 €</button>
+                <button class="quick-bet-btn" data-bet="25">25 €</button>
+                <button class="quick-bet-btn" data-bet="50">50 €</button>
+                <button class="quick-bet-btn" data-bet="100">100 €</button>
+            </div>
+            <div class="control-row">
+                <button id="dropBtn">🎲 HRAŤ</button>
+                <button id="resetBtn">🔄 RESET</button>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" width="800" height="680"></canvas>
+
+        <div class="history">
+            <div class="history-title">📊 História hier</div>
+            <div class="history-items" id="historyItems">
+                <div style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">Zatiaľ žiadne hry</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="win-message" id="winMessage"></div>
+
+    <script>
+        // Vytvorenie hviezd
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const dropBtn = document.getElementById('dropBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const balanceEl = document.getElementById('balance');
+        const totalProfitEl = document.getElementById('totalProfit');
+        const gamesPlayedEl = document.getElementById('gamesPlayed');
+        const betAmountInput = document.getElementById('betAmount');
+        const imageUpload = document.getElementById('imageUpload');
+        const winMessage = document.getElementById('winMessage');
+        const historyItems = document.getElementById('historyItems');
+
+        let balance = 1000;
+        let totalProfit = 0;
+        let gamesPlayed = 0;
+        let userImage = null;
+        let balls = [];
+        let isDropping = false;
+        let history = [];
+
+        const pegRadius = 6;
+        const ballRadius = 15;
+        const gravity = 0.4;
+        const bounce = 0.75;
+        const friction = 0.99;
+
+        const pegs = [];
+        const rows = 9;
+        const startX = canvas.width / 2;
+        const startY = 100;
+        const spacing = 55;
+
+        for (let row = 0; row < rows; row++) {
+            const pegsInRow = row + 3;
+            const rowWidth = (pegsInRow - 1) * spacing;
+            const rowStartX = startX - rowWidth / 2;
+
+            for (let col = 0; col < pegsInRow; col++) {
+                pegs.push({
+                    x: rowStartX + col * spacing,
+                    y: startY + row * spacing
+                });
+            }
+        }
+
+        const slots = [
+            { multiplier: 10, color: '#ff3838' },
+            { multiplier: 5, color: '#ff6348' },
+            { multiplier: 3, color: '#ff9f43' },
+            { multiplier: 2, color: '#feca57' },
+            { multiplier: 1.5, color: '#48dbfb' },
+            { multiplier: 1, color: '#1dd1a1' },
+            { multiplier: 0.5, color: '#5f27cd' },
+            { multiplier: 1, color: '#1dd1a1' },
+            { multiplier: 1.5, color: '#48dbfb' },
+            { multiplier: 2, color: '#feca57' },
+            { multiplier: 3, color: '#ff9f43' },
+            { multiplier: 5, color: '#ff6348' },
+            { multiplier: 10, color: '#ff3838' }
+        ];
+
+        const slotWidth = canvas.width / slots.length;
+        const slotY = canvas.height - 70;
+        const slotHeight = 80;
+
+        // Rýchle stávky
+        document.querySelectorAll('.quick-bet-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                betAmountInput.value = btn.dataset.bet;
+            });
+        });
+
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        userImage = img;
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function showWinMessage(amount, multiplier) {
+            const profit = amount - parseInt(betAmountInput.value);
+            const message = profit > 0 
+                ? `🎉 VÝHRA! +${profit}€ (${multiplier}x)`
+                : `😢 Prehra ${profit}€ (${multiplier}x)`;
+            
+            winMessage.textContent = message;
+            winMessage.classList.add('show');
+            
+            setTimeout(() => {
+                winMessage.classList.remove('show');
+            }, 2000);
+        }
+
+        function addToHistory(bet, multiplier, profit) {
+            const item = {
+                bet,
+                multiplier,
+                profit,
+                isWin: profit > 0
+            };
+            
+            history.unshift(item);
+            if (history.length > 5) history.pop();
+            
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            if (history.length === 0) {
+                historyItems.innerHTML = '<div style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">Zatiaľ žiadne hry</div>';
+                return;
+            }
+            
+            historyItems.innerHTML = history.map(item => `
+                <div class="history-item ${item.isWin ? 'win' : 'loss'}">
+                    <span class="history-bet">Stávka: ${item.bet}€ × ${item.multiplier}x</span>
+                    <span class="history-result ${item.profit > 0 ? 'positive' : 'negative'}">
+                        ${item.profit > 0 ? '+' : ''}${item.profit}€
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        class Ball {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = 0;
+                this.radius = ballRadius;
+                this.landed = false;
+                this.glow = 0;
+            }
+
+            update() {
+                if (this.landed) return;
+
+                this.vy += gravity;
+                this.vx *= friction;
+                this.vy *= friction;
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x - this.radius < 0) {
+                    this.x = this.radius;
+                    this.vx *= -bounce;
+                }
+                if (this.x + this.radius > canvas.width) {
+                    this.x = canvas.width - this.radius;
+                    this.vx *= -bounce;
+                }
+
+                pegs.forEach(peg => {
+                    const dx = this.x - peg.x;
+                    const dy = this.y - peg.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < this.radius + pegRadius) {
+                        const angle = Math.atan2(dy, dx);
+                        const targetX = peg.x + Math.cos(angle) * (this.radius + pegRadius);
+                        const targetY = peg.y + Math.sin(angle) * (this.radius + pegRadius);
+
+                        this.x = targetX;
+                        this.y = targetY;
+
+                        const force = Math.sqrt(this.vx * this.vx + this.vy * this.vy) * bounce;
+                        this.vx = Math.cos(angle) * force;
+                        this.vy = Math.sin(angle) * force;
+                        
+                        this.glow = 1;
+                    }
+                });
+
+                if (this.glow > 0) this.glow -= 0.05;
+
+                if (this.y + this.radius >= slotY - 20) {
+                    if (!this.landed) {
+                        this.landed = true;
+                        const slotIndex = Math.floor(this.x / slotWidth);
+                        const validIndex = Math.max(0, Math.min(slotIndex, slots.length - 1));
+                        const multiplier = slots[validIndex].multiplier;
+                        const betAmount = parseInt(betAmountInput.value);
+                        const winAmount = Math.round(betAmount * multiplier);
+                        const profit = winAmount - betAmount;
+                        
+                        balance += profit;
+                        totalProfit += profit;
+                        gamesPlayed++;
+                        
+                        balanceEl.textContent = balance;
+                        totalProfitEl.textContent = totalProfit;
+                        gamesPlayedEl.textContent = gamesPlayed;
+                        
+                        showWinMessage(winAmount, multiplier);
+                        addToHistory(betAmount, multiplier, profit);
+                    }
+                    // Zastaviť guličku nad násobičmi
+                    this.y = slotY - (-50) - this.radius;
+                    this.vy = 0;
+                    this.vx *= 0.95;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                
+                if (this.glow > 0) {
+                    ctx.shadowColor = '#667eea';
+                    ctx.shadowBlur = 20 * this.glow;
+                }
+                
+                if (userImage) {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.closePath();
+                    ctx.clip();
+                    ctx.drawImage(userImage, 
+                        this.x - this.radius, 
+                        this.y - this.radius, 
+                        this.radius * 2, 
+                        this.radius * 2
+                    );
+                    ctx.restore();
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                } else {
+                    const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                    gradient.addColorStop(0, '#764ba2');
+                    gradient.addColorStop(1, '#667eea');
+                    
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = gradient;
+                    ctx.fill();
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+                
+                ctx.restore();
+            }
+        }
+
+        function drawPegs() {
+            pegs.forEach(peg => {
+                ctx.save();
+                ctx.shadowColor = '#667eea';
+                ctx.shadowBlur = 10;
+                
+                const gradient = ctx.createRadialGradient(peg.x, peg.y, 0, peg.x, peg.y, pegRadius);
+                gradient.addColorStop(0, '#8b9dff');
+                gradient.addColorStop(1, '#667eea');
+                
+                ctx.beginPath();
+                ctx.arc(peg.x, peg.y, pegRadius, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.restore();
+            });
+        }
+
+        function drawSlots() {
+            slots.forEach((slot, i) => {
+                const x = i * slotWidth;
+                
+                const gradient = ctx.createLinearGradient(x, slotY, x, slotY + slotHeight);
+                gradient.addColorStop(0, slot.color);
+                gradient.addColorStop(1, slot.color + '88');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(x, slotY, slotWidth, slotHeight);
+                
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, slotY, slotWidth, slotHeight);
+
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 18px Poppins';
+                ctx.textAlign = 'center';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowBlur = 5;
+                ctx.fillText(`${slot.multiplier}x`, x + slotWidth / 2, slotY + slotHeight / 2 + 6);
+                ctx.shadowBlur = 0;
+            });
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawSlots();
+            drawPegs();
+
+            balls = balls.filter(ball => {
+                if (ball.landed && ball.vy === 0 && Math.abs(ball.vx) < 0.1) {
+                    return false; // Odstrániť zastavené guličky
+                }
+                return true;
+            });
+            
+            balls.forEach(ball => {
+                ball.update();
+                ball.draw();
+            });
+
+            if (balls.length === 0) {
+                isDropping = false;
+                dropBtn.disabled = false;
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        dropBtn.addEventListener('click', () => {
+            const betAmount = parseInt(betAmountInput.value);
+            
+            if (betAmount <= 0) {
+                alert('Zadaj platnú stávku!');
+                return;
+            }
+            
+            if (betAmount > balance) {
+                alert('Nedostatok prostriedkov!');
+                return;
+            }
+            
+            if (!isDropping) {
+                isDropping = true;
+                dropBtn.disabled = true;
+                balance -= betAmount;
+                balanceEl.textContent = balance;
+                balls.push(new Ball(canvas.width / 2, 30));
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            balance = 1000;
+            totalProfit = 0;
+            gamesPlayed = 0;
+            history = [];
+            balanceEl.textContent = balance;
+            totalProfitEl.textContent = totalProfit;
+            gamesPlayedEl.textContent = gamesPlayed;
+            updateHistoryDisplay();
+        });
+
+        animate();
+    </script>
+</body>
+</html>
